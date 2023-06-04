@@ -78,7 +78,7 @@ public class HomeController implements Initializable {
                 updateBundle(LanguageBundle.getInstance().getResourceBundle()));
 
         FXMLLoader fxmlLoader;
-        date = new Date();
+        date = Utilities.getCurrentDate();
         // initialize required dependencies
         settings = Settings.getInstance();
         prayerTimesToday = PrayerTimesUtil.getPrayerTimesToday(settings.getPrayerTimeSettings(), date);
@@ -160,7 +160,7 @@ public class HomeController implements Initializable {
 
     private void initClock() {
         Timeline clock = new Timeline(new KeyFrame(Duration.ZERO, e -> {
-            date = new Date();
+            date = Utilities.getCurrentDate();
 
             // -- increment time --
             String timeNow;
@@ -187,7 +187,7 @@ public class HomeController implements Initializable {
                 initReminders();
             }
 
-            prayerTimesController.prayerTimelineAction();
+            prayerTimesController.prayerTimelineAction(date);
             handlePrayerRemainingTime(date);
             checkForReminders(date);
         }), new KeyFrame(Duration.seconds(1)));
@@ -247,12 +247,12 @@ public class HomeController implements Initializable {
         if (bundle != null) {
             Date nextPrayerTime;
             // take current Prayer ( when isha is finished, and it's before 12pm )
-            if (prayerTimesToday.nextPrayer().equals(Prayer.NONE)) {
+            if (prayerTimesToday.nextPrayer(dateNow).equals(Prayer.NONE)) {
                 currentPrayerText.setText(Utility.toUTF(bundle.getString("havePassedSince")) + " " + prayerTimesController.getCurrentPrayerValue());
-                nextPrayerTime = prayerTimesToday.timeForPrayer(prayerTimesToday.currentPrayer());
+                nextPrayerTime = prayerTimesToday.timeForPrayer(prayerTimesToday.currentPrayer(dateNow));
             } else {
                 currentPrayerText.setText(Utility.toUTF(bundle.getString("leftFor")) + " " + prayerTimesController.getCurrentPrayerValue());
-                nextPrayerTime = prayerTimesToday.timeForPrayer(prayerTimesToday.nextPrayer());
+                nextPrayerTime = prayerTimesToday.timeForPrayer(prayerTimesToday.nextPrayer(dateNow));
             }
 
             if (dateNow.compareTo(nextPrayerTime) < 0) {
