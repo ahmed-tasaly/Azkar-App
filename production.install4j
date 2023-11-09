@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="8.0.10" transformSequenceNumber="8">
+<install4j version="8.0.11" transformSequenceNumber="8">
   <directoryPresets config="${compiler:PARENT_DIR}/Azkar-App/Azkar/target/jfx/app/Azkar-jfx.jar" />
   <application name="${compiler:APP_FULL_NAME}" applicationId="6460-1129-3694-1642" mediaDir="${compiler:PARENT_DIR}/exe_output" pack200Compression="true" shortName="${compiler:APP_SHORT_NAME}" publisher="${compiler:Publisher}" publisherWeb="${compiler:Publisher}" version="${compiler:APP_VERSION}" macVolumeId="46e77254d484fdd2" javaMinVersion="1.8" javaMaxVersion="1.8" jdkMode="jdk" jdkName="JDK 1.8">
     <variables>
       <variable name="PARENT_DIR" value="." />
       <variable name="APP_FULL_NAME" value="Azkar" />
       <variable name="APP_SHORT_NAME" value="Azkar" />
-      <variable name="APP_VERSION" value="1.2.6" />
+      <variable name="APP_VERSION" value="1.2.7" />
       <variable name="Publisher" value="Abdelrahman Bayoumi" />
       <variable name="Publisher_URL" value="https://github.com/AbdelrahmanBayoumi/Azkar-App" />
       <variable name="MAIN_CLASS_PATH" value="com.bayoumi.Launcher" />
@@ -1103,7 +1103,7 @@ return true;</property>
     </windows>
   </mediaSets>
   <buildIds buildAll="false">
-    <mediaSet refId="792" />
+    <mediaSet refId="60" />
   </buildIds>
   <buildOptions verbose="true" />
 </install4j>

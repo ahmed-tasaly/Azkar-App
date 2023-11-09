@@ -3,6 +3,7 @@ package com.bayoumi.controllers.settings.azkar;
 import com.bayoumi.models.Preferences;
 import com.bayoumi.models.PreferencesType;
 import com.bayoumi.models.settings.LanguageBundle;
+import com.bayoumi.util.Constants;
 import com.bayoumi.util.Utility;
 import com.bayoumi.util.gui.ColorUtil;
 import com.jfoenix.controls.JFXColorPicker;
@@ -21,8 +22,12 @@ import java.util.ResourceBundle;
 public class ChooseNotificationColorController implements Initializable {
 
     public void setData(String currentBorderColor) {
-        setColor(currentBorderColor);
-        colorPicker.setValue(Color.web(currentBorderColor));
+        try {
+            setColor(currentBorderColor);
+            colorPicker.setValue(Color.web(currentBorderColor));
+        } catch (Exception ignored) {
+            colorPicker.setValue(Color.web(Constants.NOTIFICATION_BORDER_COLOR));
+        }
     }
 
     private void setColor(String hexColor) {

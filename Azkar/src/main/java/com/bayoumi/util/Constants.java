@@ -12,10 +12,12 @@ public class Constants {
 
     // Program characteristics
     public static String assetsPath;
-    public final static String VERSION = "1.2.6";
+    public final static String VERSION = "1.2.8";
     public final static String LOCATIONS_DB_URL = "https://github.com/AbdelrahmanBayoumi/LocationsDB/releases/latest/download/locations.db";
 
     public final static Mode RUNNING_MODE = Mode.PRODUCTION;
+
+    public final static String NOTIFICATION_BORDER_COLOR = "#E9C46A";
 
     static {
         try {

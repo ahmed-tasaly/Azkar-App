@@ -2,7 +2,25 @@
 <p align=center>سجل التغيير هو ملف يحتوي على قائمة مرتبة ترتيبًا زمنيًا بالتغييرات الملحوظة لكل إصدار من المشروع.</p>
 
 
-## [Unreleased](https://github.com/AbdelrahmanBayoumi/Azkar-App/compare/1.2.5...HEAD)
+## [Unreleased](https://github.com/AbdelrahmanBayoumi/Azkar-App/compare/1.2.7...HEAD)
+
+## [1.2.7](https://github.com/AbdelrahmanBayoumi/Azkar-App/releases/tag/1.2.7) - 2022-07-17
+- Bundle EXE with 1.8_271 not 1.8_221
+- Fix Timed Azkar window delay
+- Exception: Error in getCityFromCoordinates() && getCityFromEngName() [#43](https://github.com/AbdelrahmanBayoumi/Azkar-App/issues/43)
+- Fix NullPointerException [#42](https://github.com/AbdelrahmanBayoumi/Azkar-App/issues/42)
+
+[Full Changelog](https://github.com/AbdelrahmanBayoumi/Azkar-App/compare/1.2.6...1.2.7)
+
+## [1.2.6](https://github.com/AbdelrahmanBayoumi/Azkar-App/releases/tag/1.2.6) - 2022-06-06
+
+### Fix
+- [#40](https://github.com/AbdelrahmanBayoumi/Azkar-App/issues/40) Add one hour to time anyway if user wants to Fix Daylight saving time
+- [`4274d17`](https://github.com/AbdelrahmanBayoumi/Azkar-App/commit/4274d173c90b9aecfe56d69d6ef41be065d84e3b) Now when first notification is shown it doesn't steal focus from the current running application
+- [#38](https://github.com/AbdelrahmanBayoumi/Azkar-App/issues/38) Fix Spelling errors
+
+[Full Changelog](https://github.com/AbdelrahmanBayoumi/Azkar-App/compare/1.2.5...1.2.6)
+
 
 ## [1.2.5](https://github.com/AbdelrahmanBayoumi/Azkar-App/releases/tag/1.2.5) - 2022-10-18
 
