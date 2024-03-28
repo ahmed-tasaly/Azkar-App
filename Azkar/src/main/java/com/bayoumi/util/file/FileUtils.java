@@ -1,6 +1,7 @@
 package com.bayoumi.util.file;
 
 import com.bayoumi.models.Muezzin;
+import com.bayoumi.util.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -10,6 +11,11 @@ import java.util.List;
 
 public class FileUtils {
 
+    /**
+     * Add files names From the given folder to the given list
+     * @param folder the folder that contains the files
+     * @param list   the list that will contain the files names
+     */
     public static void addFilesNameToList(File folder, List<String> list) {
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles != null) {
@@ -47,9 +53,7 @@ public class FileUtils {
                 }
             }
         }
-        muezzinList.forEach((muezzin) -> {
-            System.out.println(muezzin);
-        });
+        muezzinList.forEach(Logger::debug);
     }
 
     public static List<Muezzin> getAdhanList() {

@@ -1,4 +1,4 @@
-package com.bayoumi.models;
+package com.bayoumi.models.location;
 
 import com.bayoumi.models.settings.Settings;
 import com.bayoumi.util.Logger;
@@ -78,7 +78,7 @@ public class City {
                     "(latitude BETWEEN " + latitude + "-0.008 AND " + latitude + "+0.008) AND " +
                     "(longitude BETWEEN " + longitude + "-0.008 AND " + longitude + "+0.008)  AND " +
                     "(country='" + countryCode + "');";
-            System.out.println("sql: " + sql);
+            Logger.debug("sql: " + sql);
             ResultSet res = LocationsDBManager.getInstance().con.prepareStatement(sql).executeQuery();
 
             if (res.next()) {

@@ -1,7 +1,7 @@
 package com.bayoumi.controllers.settings.azkar;
 
-import com.bayoumi.models.Preferences;
-import com.bayoumi.models.PreferencesType;
+import com.bayoumi.models.settings.Preferences;
+import com.bayoumi.models.settings.PreferencesType;
 import com.bayoumi.models.settings.LanguageBundle;
 import com.bayoumi.util.Constants;
 import com.bayoumi.util.Utility;
@@ -27,6 +27,7 @@ public class ChooseNotificationColorController implements Initializable {
             colorPicker.setValue(Color.web(currentBorderColor));
         } catch (Exception ignored) {
             colorPicker.setValue(Color.web(Constants.NOTIFICATION_BORDER_COLOR));
+            setColor(Constants.NOTIFICATION_BORDER_COLOR);
         }
     }
 
