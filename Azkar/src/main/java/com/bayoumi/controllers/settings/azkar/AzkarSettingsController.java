@@ -1,19 +1,12 @@
 package com.bayoumi.controllers.settings.azkar;
 
 import com.bayoumi.controllers.settings.SettingsInterface;
-import com.bayoumi.models.AbsoluteZekr;
-import com.bayoumi.models.settings.Preferences;
-import com.bayoumi.models.settings.PreferencesType;
-import com.bayoumi.models.settings.AzkarSettings;
-import com.bayoumi.models.settings.LanguageBundle;
-import com.bayoumi.models.settings.NotificationSettings;
-import com.bayoumi.models.settings.Settings;
+import com.bayoumi.models.azkar.AbsoluteZekr;
+import com.bayoumi.models.settings.*;
 import com.bayoumi.util.Logger;
 import com.bayoumi.util.Utility;
 import com.bayoumi.util.file.FileUtils;
-import com.bayoumi.util.gui.HelperMethods;
-import com.bayoumi.util.gui.IntegerSpinner;
-import com.bayoumi.util.gui.PopOverUtil;
+import com.bayoumi.util.gui.*;
 import com.bayoumi.util.gui.load.Loader;
 import com.bayoumi.util.gui.load.LoaderComponent;
 import com.bayoumi.util.gui.load.Locations;
@@ -21,10 +14,7 @@ import com.bayoumi.util.gui.notfication.Notification;
 import com.bayoumi.util.gui.notfication.NotificationAudio;
 import com.bayoumi.util.gui.notfication.NotificationContent;
 import com.bayoumi.util.time.ArabicNumeralDiscrimination;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXCheckBox;
-import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXSlider;
+import com.jfoenix.controls.*;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.jensd.fx.glyphs.octicons.OctIcon;
@@ -37,9 +27,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -66,13 +54,15 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
     private double previousValue = 50;
     private boolean isMuted = false;
     @FXML
-    private VBox periodBox;
+    private ScrollPane scrollPane;
+    @FXML
+    private VBox root, periodBox;
     @FXML
     private JFXComboBox<Pos> posComboBox;
     @FXML
     private JFXButton highFrequency, midFrequency, lowFrequency, rearFrequency;
     @FXML
-    private Spinner<Integer> azkarPeriod, azkarPeriod_hour;
+    private Spinner<Integer> azkarPeriod, azkarPeriod_hour, morningAzkarTimeSpinner, nightAzkarTimeSpinner;
     @FXML
     private JFXCheckBox stopAzkar;
     @FXML
@@ -86,7 +76,12 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
     @FXML
     private HBox volumeBox;
     @FXML
-    private Label minPlurality, hourPlurality, choosePeriod, zakrAppearEvery, theSoundAndLocationOfTheAlertForAzkar;
+    private JFXToggleButton morningAzkarTimeToggle, nightAzkarTimeToggle;
+    @FXML
+    private Label minPlurality, hourPlurality, choosePeriod, zakrAppearEvery, theSoundAndLocationOfTheAlertForAzkar,
+            morningAndNightAzkarTitle, reminderOfMorningAzkarLabel, afterFajrPrayerLabel, reminderOfNightAzkarLabel,
+            afterAsrPrayerLabel, minuteLabelForMorningAzkar, minuteLabelForNightAzkar;
+
 
     public void updateBundle(ResourceBundle bundle) {
         this.bundle = bundle;
@@ -106,6 +101,13 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
         posComboBox.setPromptText(Utility.toUTF(bundle.getString("settings.azkar.notificationLocation")));
         azkarAlarmComboBox.setPromptText(Utility.toUTF(bundle.getString("settings.azkar.alarmSound")));
         theSoundAndLocationOfTheAlertForAzkar.setText(Utility.toUTF(bundle.getString("settings.azkar.theSoundAndLocationOfTheAlertForAzkar")));
+        morningAndNightAzkarTitle.setText(Utility.toUTF(bundle.getString("settings.azkar.morningAndNightAzkar")));
+        reminderOfMorningAzkarLabel.setText(Utility.toUTF(bundle.getString("settings.azkar.reminderOfMorningAzkar")));
+        reminderOfNightAzkarLabel.setText(Utility.toUTF(bundle.getString("settings.azkar.reminderOfNightAzkar")));
+        afterFajrPrayerLabel.setText(Utility.toUTF(bundle.getString("settings.azkar.afterFajrPrayer")));
+        afterAsrPrayerLabel.setText(Utility.toUTF(bundle.getString("settings.azkar.afterAsrPrayer")));
+        minuteLabelForMorningAzkar.setText(Utility.toUTF(bundle.getString("oneMinute")));
+        minuteLabelForNightAzkar.setText(Utility.toUTF(bundle.getString("oneMinute")));
 
         PopOverUtil.init(goToAzkarDBButton, (Utility.toUTF(bundle.getString("settings.azkar.azkarDatabaseButtonNote"))));
     }
@@ -132,6 +134,9 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
         azkarPeriod_hour.valueProperty().addListener((observable, oldValue, newValue) -> hourPlurality.setText(ArabicNumeralDiscrimination.hoursArabicPlurality(bundle, Integer.parseInt(azkarPeriod_hour.getEditor().getText()))));
         azkarPeriod.setOnKeyReleased(event -> minPlurality.setText(ArabicNumeralDiscrimination.minutesArabicPlurality(bundle, Integer.parseInt(azkarPeriod.getEditor().getText()))));
         azkarPeriod_hour.setOnKeyReleased(event -> hourPlurality.setText(ArabicNumeralDiscrimination.hoursArabicPlurality(bundle, Integer.parseInt(azkarPeriod_hour.getEditor().getText()))));
+        morningAzkarTimeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 120, 30, 10));
+        nightAzkarTimeSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 120, 30, 10));
+
 
         // init Saved data form DB
         azkarSettings = Settings.getInstance().getAzkarSettings();
@@ -146,6 +151,7 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
                 playButton.setGraphic(playIcon);
                 playButton.setPadding(new Insets(5, 14, 5, 8));
             }
+            onAzkarAlarmChange();
         });
         volumeSlider.setValue(azkarSettings.getVolume());
         // init volume
@@ -170,7 +176,7 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
         notificationSettings = Settings.getInstance().getNotificationSettings();
         posComboBox.setItems(FXCollections.observableArrayList(Pos.TOP_RIGHT, Pos.BOTTOM_RIGHT, Pos.TOP_LEFT, Pos.BOTTOM_LEFT, Pos.CENTER));
         posComboBox.setValue(notificationSettings.getPosition());
-        if (Settings.getInstance().getOtherSettings().getLanguageLocal().equals("ar")) {
+        if (Settings.getInstance().getLanguage().equals(Language.Arabic)) {
             posComboBox.setConverter(NotificationSettings.posArabicConverter());
         } else {
             posComboBox.setConverter(NotificationSettings.posEnglishConverter());
@@ -179,9 +185,22 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
         azkarPeriod.getValueFactory().setValue(azkarSettings.getHighPeriod() % 60);
         azkarPeriod_hour.getValueFactory().setValue(azkarSettings.getHighPeriod() / 60);
 
+        morningAzkarTimeSpinner.getValueFactory().setValue(Settings.getInstance().getAzkarSettings().getMorningAzkarReminder());
+        nightAzkarTimeSpinner.getValueFactory().setValue(Settings.getInstance().getAzkarSettings().getNightAzkarReminder());
+
+        morningAzkarTimeToggle.setSelected(morningAzkarTimeSpinner.getValueFactory().getValue() != 0);
+        morningAzkarTimeSpinner.setDisable(morningAzkarTimeSpinner.getValueFactory().getValue() == 0);
+        toggleAction(morningAzkarTimeToggle);
+
+        nightAzkarTimeToggle.setSelected(nightAzkarTimeSpinner.getValueFactory().getValue() != 0);
+        nightAzkarTimeSpinner.setDisable(nightAzkarTimeSpinner.getValueFactory().getValue() == 0);
+        toggleAction(nightAzkarTimeToggle);
+
         stopAzkar.setSelected(azkarSettings.isStopped());
         currentFrequency = highFrequency;
         currentFrequency.getStyleClass().add("frequency-btn-selected");
+
+        ScrollHandler.init(root, scrollPane, 1);
     }
 
     @FXML
@@ -193,7 +212,13 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
             String fileName = azkarAlarmComboBox.getValue();
             Logger.debug(fileName);
             if (!fileName.equals("بدون صوت")) {
-                MEDIA_PLAYER = new MediaPlayer(new Media(new File("jarFiles/audio/" + fileName).toURI().toString()));
+                try {
+                    MEDIA_PLAYER = new MediaPlayer(new Media(new File("jarFiles/audio/" + fileName).toURI().toString()));
+                } catch (Exception e) {
+                    Logger.error(null, e, getClass().getName() + ".play()");
+                    BuilderUI.showOkAlert(Alert.AlertType.ERROR, Utility.toUTF(bundle.getString("errorPlayingAudio")), Utility.toUTF(bundle.getString("dir")).equals("rtl"));
+                    return;
+                }
                 MEDIA_PLAYER.setVolume(azkarSettings.getVolume() / 100.0);
                 MEDIA_PLAYER.play();
                 // playing
@@ -239,27 +264,35 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
             azkarPeriod.getValueFactory().setValue(1);
         }
         // save data
-        if (currentFrequency.equals(highFrequency)) {
-            azkarSettings.setHighPeriod(azkarPeriod.getValueFactory().getValue() + azkarPeriod_hour.getValueFactory().getValue() * 60);
-        } else if (currentFrequency.equals(midFrequency)) {
-            azkarSettings.setMidPeriod(azkarPeriod.getValueFactory().getValue() + azkarPeriod_hour.getValueFactory().getValue() * 60);
-        } else if (currentFrequency.equals(lowFrequency)) {
-            azkarSettings.setLowPeriod(azkarPeriod.getValueFactory().getValue() + azkarPeriod_hour.getValueFactory().getValue() * 60);
-        } else if (currentFrequency.equals(rearFrequency)) {
-            azkarSettings.setRearPeriod(azkarPeriod.getValueFactory().getValue() + azkarPeriod_hour.getValueFactory().getValue() * 60);
-        }
+        saveCurrentFrequency();
         // toggle style to selected button
         currentFrequency.getStyleClass().remove("frequency-btn-selected");
         currentFrequency = b;
         currentFrequency.getStyleClass().add("frequency-btn-selected");
     }
 
+    private void saveCurrentFrequency() {
+        int currentPeriodValue = azkarPeriod.getValueFactory().getValue() + azkarPeriod_hour.getValueFactory().getValue() * 60;
+        if (currentFrequency.equals(highFrequency)) {
+            if (currentPeriodValue == azkarSettings.getHighPeriod()) return;
+            azkarSettings.setHighPeriod(currentPeriodValue);
+        } else if (currentFrequency.equals(midFrequency)) {
+            if (currentPeriodValue == azkarSettings.getMidPeriod()) return;
+            azkarSettings.setMidPeriod(currentPeriodValue);
+        } else if (currentFrequency.equals(lowFrequency)) {
+            if (currentPeriodValue == azkarSettings.getLowPeriod()) return;
+            azkarSettings.setLowPeriod(currentPeriodValue);
+        } else if (currentFrequency.equals(rearFrequency)) {
+            if (currentPeriodValue == azkarSettings.getRearPeriod()) return;
+            azkarSettings.setRearPeriod(currentPeriodValue);
+        }
+    }
+
     @FXML
     private void goToNotificationColor() {
         try {
             final LoaderComponent popUp = Loader.getInstance().getPopUp(Locations.ChooseNotificationColor);
-            ((ChooseNotificationColorController) popUp.getController()).setData(Preferences.getInstance()
-                    .get(PreferencesType.NOTIFICATION_BORDER_COLOR, "#E9C46A"));
+            ((ChooseNotificationColorController) popUp.getController()).setData();
             popUp.showAndWait();
         } catch (Exception e) {
             Logger.error(null, e, getClass().getName() + ".goToAzkar()");
@@ -283,15 +316,24 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
     public void saveToDB() {
         try {
             highFrequency.fire();
-            azkarSettings.setAudioName(azkarAlarmComboBox.getValue());
-            azkarSettings.setStopped(stopAzkar.isSelected());
-            azkarSettings.setVolume((int) volumeSlider.getValue());
-            azkarSettings.save();
-            notificationSettings.setPosition(posComboBox.getValue());
-            notificationSettings.save();
+            azkarSettings.notifyObservers();
         } catch (Exception ex) {
             Logger.error(null, ex, getClass().getName() + ".saveToDB()");
         }
+    }
+
+    @FXML
+    private void selectPosition() {
+        notificationSettings.setPosition(posComboBox.getValue());
+    }
+
+    @FXML
+    private void onStopAzkarChange() {
+        azkarSettings.setStopped(stopAzkar.isSelected());
+    }
+
+    private void onAzkarAlarmChange() {
+        azkarSettings.setAudioName(azkarAlarmComboBox.getValue());
     }
 
 
@@ -300,9 +342,6 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
         if (AbsoluteZekr.absoluteZekrObservableList.isEmpty()) {
             return;
         }
-        // save alarm sound & pos in case of selecting new sound
-        azkarSettings.setAudioName(azkarAlarmComboBox.getValue());
-        notificationSettings.setPosition(posComboBox.getValue());
         Platform.runLater(()
                 -> {
             Image image = null;
@@ -334,6 +373,63 @@ public class AzkarSettingsController implements Initializable, SettingsInterface
             isMuted = true;
             previousValue = volumeSlider.getValue();
             volumeSlider.setValue(0);
+        }
+    }
+
+
+    @FXML
+    private void onMorningAzkarTimeChange() {
+        azkarSettings.setMorningAzkarReminder(morningAzkarTimeSpinner.getValueFactory().getValue());
+        if (morningAzkarTimeSpinner.getValueFactory().getValue() == 0) {
+            morningAzkarTimeToggle.setSelected(false);
+            morningAzkarTimeSpinner.setDisable(true);
+            toggleAction(morningAzkarTimeToggle);
+        }
+    }
+
+    @FXML
+    private void onNightAzkarTimeChange() {
+        azkarSettings.setNightAzkarReminder(nightAzkarTimeSpinner.getValueFactory().getValue());
+        if (nightAzkarTimeSpinner.getValueFactory().getValue() == 0) {
+            nightAzkarTimeToggle.setSelected(false);
+            nightAzkarTimeSpinner.setDisable(true);
+            toggleAction(nightAzkarTimeToggle);
+        }
+    }
+
+    @FXML
+    private void onMorningAzkarTimeToggle() {
+        toggleAction(morningAzkarTimeToggle);
+        if (morningAzkarTimeToggle.isSelected()) {
+            morningAzkarTimeSpinner.setDisable(false);
+            morningAzkarTimeSpinner.getValueFactory().setValue(30);
+            azkarSettings.setMorningAzkarReminder(30);
+        } else {
+            morningAzkarTimeSpinner.setDisable(true);
+            morningAzkarTimeSpinner.getValueFactory().setValue(0);
+            azkarSettings.setMorningAzkarReminder(0);
+        }
+    }
+
+    @FXML
+    private void onNightAzkarTimeToggle() {
+        toggleAction(nightAzkarTimeToggle);
+        if (nightAzkarTimeToggle.isSelected()) {
+            nightAzkarTimeSpinner.setDisable(false);
+            nightAzkarTimeSpinner.getValueFactory().setValue(30);
+            azkarSettings.setNightAzkarReminder(30);
+        } else {
+            nightAzkarTimeSpinner.setDisable(true);
+            nightAzkarTimeSpinner.getValueFactory().setValue(0);
+            azkarSettings.setNightAzkarReminder(0);
+        }
+    }
+
+    private void toggleAction(JFXToggleButton toggleButton) {
+        if (toggleButton.isSelected()) {
+            toggleButton.setText(Utility.toUTF(bundle.getString("enabled")));
+        } else {
+            toggleButton.setText(Utility.toUTF(bundle.getString("settings.azkar.noReminder")));
         }
     }
 

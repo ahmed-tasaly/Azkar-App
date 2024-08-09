@@ -1,6 +1,6 @@
 package com.bayoumi.controllers.azkar.absolute;
 
-import com.bayoumi.models.AbsoluteZekr;
+import com.bayoumi.models.azkar.AbsoluteZekr;
 import com.bayoumi.models.settings.LanguageBundle;
 import com.bayoumi.util.Utility;
 import com.bayoumi.util.gui.button.TableViewButton;
@@ -75,7 +75,7 @@ public class AbsoluteAzkarController implements Initializable {
 
     @FXML
     private void newZekrAddAction() {
-        if (!newZekr.getText().trim().equals("")) {
+        if (!newZekr.getText().trim().isEmpty()) {
             AbsoluteZekr zekr = new AbsoluteZekr(0, newZekr.getText().trim());
             zekr.insert();
             AbsoluteZekr.fetchData();

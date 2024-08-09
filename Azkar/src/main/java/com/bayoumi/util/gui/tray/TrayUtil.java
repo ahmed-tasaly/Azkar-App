@@ -1,5 +1,6 @@
 package com.bayoumi.util.gui.tray;
 
+import com.bayoumi.util.Constants;
 import com.bayoumi.util.Logger;
 import com.bayoumi.util.Utility;
 import javafx.application.Platform;
@@ -29,7 +30,7 @@ public class TrayUtil {
             try {
                 addAppToTray();
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.error("Error adding app to system tray", e, TrayUtil.class.getName() + ".TrayUtil()");
                 Platform.setImplicitExit(true);
             }
         });
@@ -65,7 +66,7 @@ public class TrayUtil {
             BufferedImage trayIconImage = ImageIO.read(Objects.requireNonNull(TrayUtil.class.getResource("/com/bayoumi/images/icon.png")));
             int trayIconWidth = new TrayIcon(trayIconImage).getSize().width;
             trayIcon = new TrayIcon(trayIconImage.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH));
-            trayIcon.setToolTip("Azkar App");
+            trayIcon.setToolTip(Constants.APP_NAME + " App");
             // if the user clicks on the tray icon, show the main app stage.
             trayIcon.addMouseListener(new MouseAdapter() {
                 @Override

@@ -6,10 +6,12 @@ import com.bayoumi.Launcher;
 import com.bayoumi.controllers.azkar.timed.TimedAzkarController;
 import com.bayoumi.controllers.home.periods.AzkarPeriodsController;
 import com.bayoumi.controllers.home.prayertimes.PrayerTimesController;
-import com.bayoumi.models.AbsoluteZekr;
-import com.bayoumi.models.settings.Language;
+import com.bayoumi.models.azkar.AbsoluteZekr;
+import com.bayoumi.models.azkar.TimedZekrDTO;
+import com.bayoumi.models.preferences.PreferencesType;
 import com.bayoumi.models.settings.LanguageBundle;
 import com.bayoumi.models.settings.Settings;
+import com.bayoumi.services.TimedAzkarService;
 import com.bayoumi.util.Logger;
 import com.bayoumi.util.Utility;
 import com.bayoumi.util.gui.BuilderUI;
@@ -34,16 +36,19 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.NodeOrientation;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class HomeController implements Initializable {
@@ -87,7 +92,7 @@ public class HomeController implements Initializable {
             fxmlLoader = new FXMLLoader(getClass().getResource(Locations.PrayerTimes.toString()));
             mainContainer.getChildren().add(0, fxmlLoader.load());
             prayerTimesController = fxmlLoader.getController();
-            prayerTimesController.setData(settings, prayerTimesToday);
+            prayerTimesController.setData(prayerTimesToday);
         } catch (Exception ex) {
             Logger.error("loading PrayerTimes", ex, getClass().getName() + ".initialize()");
             Launcher.workFine.setValue(false);
@@ -100,9 +105,9 @@ public class HomeController implements Initializable {
         }
 
         initClock();
-        day.setText(Utilities.getDay(settings.getOtherSettings().getLanguageLocal(), date));
-        gregorianDate.setText(Utilities.getGregorianDate(settings.getOtherSettings().getLanguageLocal(), date));
-        hijriDate.setText(new HijriDate(settings.getOtherSettings().getHijriOffset()).getString(settings.getOtherSettings().getLanguageLocal()));
+        day.setText(Utilities.getDay(settings.getLanguage().getLocale(), date));
+        gregorianDate.setText(Utilities.getGregorianDate(settings.getLanguage().getLocale(), date));
+        hijriDate.setText(new HijriDate(settings.getHijriOffset()).getString(settings.getLanguage().getLocale()));
 
         initReminders();
 
@@ -110,18 +115,18 @@ public class HomeController implements Initializable {
             fxmlLoader = new FXMLLoader(getClass().getResource(Locations.AzkarPeriods.toString()));
             periodBox = fxmlLoader.load();
             azkarPeriodsController = fxmlLoader.getController();
-            azkarPeriodsController.setData(settings);
+            azkarPeriodsController.setData();
             container.getChildren().add(2, periodBox);
         } catch (Exception ex) {
             Logger.error("loading AzkarPeriods", ex, getClass().getName() + ".initialize()");
             Launcher.workFine.setValue(false);
         }
 
-        // if there is a change in HijriDate offset
-        settings.getOtherSettings().addObserver((o, arg) -> {
-            hijriDate.setText(new HijriDate(settings.getOtherSettings().getHijriOffset()).getString(settings.getOtherSettings().getLanguageLocal()));
-            prayerTimesController.setPrayerTimesValuesToGUI();
-        });
+        settings.addObserver(PreferencesType.HIJRI_OFFSET, (key, value) ->
+                hijriDate.setText(new HijriDate(settings.getHijriOffset()).getString(settings.getLanguage().getLocale())));
+
+        settings.addObserver(PreferencesType.ENABLE_24_FORMAT, (key, value) ->
+                prayerTimesController.setPrayerTimesValuesToGUI());
 
         // if time periods of Azkar and settings has changed
         settings.getAzkarSettings().addObserver((o, arg) -> {
@@ -162,22 +167,23 @@ public class HomeController implements Initializable {
 
             // -- increment time --
             String timeNow;
-            if (settings.getOtherSettings().isEnable24Format()) {
-                timeNow = Utilities.getTime24(settings.getOtherSettings().getLanguageLocal(), date);
+            final String locale = settings.getLanguage().getLocale();
+            if (settings.getEnable24Format()) {
+                timeNow = Utilities.getTime24(locale, date);
             } else {
-                timeNow = Utilities.getTime(settings.getOtherSettings().getLanguageLocal(), date);
+                timeNow = Utilities.getTime(locale, date);
             }
             timeLabel.setText(timeNow);
 
             // is new day? => change Dates and the prayer times
             if (timeNow.equals("12:00:00 AM") || timeNow.equals("12:00:00 ص") || timeNow.equals("00:00:00")
-                    || !Utilities.getDay(settings.getOtherSettings().getLanguageLocal(), date).equals(day.getText())) {
+                    || !Utilities.getDay(locale, date).equals(day.getText())) {
                 // update week day name
-                day.setText(Utilities.getDay(settings.getOtherSettings().getLanguageLocal(), date));
+                day.setText(Utilities.getDay(locale, date));
                 // update Gregorian date
-                gregorianDate.setText(Utilities.getGregorianDate(settings.getOtherSettings().getLanguageLocal(), date));
+                gregorianDate.setText(Utilities.getGregorianDate(locale, date));
                 // update Hijri date
-                hijriDate.setText(new HijriDate(settings.getOtherSettings().getHijriOffset()).getString(settings.getOtherSettings().getLanguageLocal()));
+                hijriDate.setText(new HijriDate(settings.getHijriOffset()).getString(locale));
                 // get prayer times for the new day
                 prayerTimesToday = PrayerTimesUtil.getPrayerTimesToday(settings.getPrayerTimeSettings(), date);
                 prayerTimesController.setPrayerTimes(prayerTimesToday);
@@ -199,28 +205,33 @@ public class HomeController implements Initializable {
     // ==============================================
     @FXML
     public void goToMorningAzkar() {
-        if (settings.getOtherSettings().getLanguage().equals(Language.Arabic)) {
-            showTimedAzkar("morning");
-        } else if (BuilderUI.showConfirmAlert(false, Utility.toUTF(bundle.getString("morningAzkarNotAvailable")))) {
-            showTimedAzkar("morning");
-        }
+        showTimedAzkar("morning");
     }
 
     @FXML
     public void goToNightAzkar() {
-        if (settings.getOtherSettings().getLanguage().equals(Language.Arabic)) {
-            showTimedAzkar("night");
-        } else if (BuilderUI.showConfirmAlert(false, Utility.toUTF(bundle.getString("nightAzkarNotAvailable")))) {
-            showTimedAzkar("night");
-        }
+        showTimedAzkar("night");
     }
 
     private void showTimedAzkar(String type) {
         try {
-            final LoaderComponent popUp = Loader.getInstance().getPopUp(Locations.TimedAzkar);
-            ((TimedAzkarController) popUp.getController()).setData(type);
-            HelperMethods.ExitKeyCodeCombination(popUp.getStage().getScene(), popUp.getStage());
-            popUp.showAndWait();
+            List<TimedZekrDTO> timedZekrDTOList;
+            try {
+                timedZekrDTOList = TimedAzkarService.getTimedAzkar(settings.getLanguage().getLocale(), type.equals("morning") ? 1 : 2);
+            } catch (Exception ex) {
+                try {
+                    TimedAzkarService.downloadLatestReleaseFiles();
+                    timedZekrDTOList = TimedAzkarService.getTimedAzkar(settings.getLanguage().getLocale(), type.equals("morning") ? 1 : 2);
+                } catch (Exception e) {
+                    return;
+                }
+            }
+
+            final FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(Locations.TimedAzkar.toString()));
+            final Stage stage = BuilderUI.initStageDecorated(new Scene(fxmlLoader.load()), Utility.toUTF(bundle.getString(type + "Azkar")));
+            ((TimedAzkarController) fxmlLoader.getController()).setData(timedZekrDTOList, type, stage);
+            HelperMethods.ExitKeyCodeCombination(stage.getScene(), stage);
+            stage.showAndWait();
         } catch (Exception e) {
             Logger.error(null, e, getClass().getName() + ".showTimedAzkar()");
         }
@@ -243,7 +254,7 @@ public class HomeController implements Initializable {
     // ==============================================
     private void handlePrayerRemainingTime(Date dateNow) {
         if (bundle != null) {
-            // take current Prayer ( when isha is finished, and it's before 12pm )
+            // take current Prayer ( when Isha is finished, and it's before 12pm )
             if (prayerTimesToday.nextPrayer(dateNow).equals(Prayer.NONE)) {
                 currentPrayerText.setText(Utility.toUTF(bundle.getString("havePassedSince")) + " " + prayerTimesController.getCurrentPrayerValue());
             } else if (prayerTimesToday.nextPrayer(dateNow).equals(prayerTimesController.getCurrentPrayer())) {
@@ -303,7 +314,7 @@ public class HomeController implements Initializable {
     private void playAdhan(String prayerName) {
         Logger.debug("playAdhan() => " + prayerName);
         String adhanFileName = Settings.getInstance().getPrayerTimeSettings().getAdhanAudio();
-        if (adhanFileName == null || adhanFileName.equals("")) {
+        if (adhanFileName == null || adhanFileName.isEmpty()) {
             adhanFileName = "";
         } else {
             adhanFileName = "adhan/" + adhanFileName;

@@ -25,8 +25,8 @@
 | عرض توضيحي (على اليوتيوب) 📸 | حركة الإشعار 💬 |
 | ------------- | ------------- |
 | <a href="https://youtu.be/valBHDTIC1E"><img src="https://user-images.githubusercontent.com/48678280/141684196-899fb7f8-bf23-40b1-a98f-7570760056b0.png" alt="overview image"></a>  | <img src="https://user-images.githubusercontent.com/48678280/141681074-bde467a2-bc48-4e1c-8e51-861f224b2d34.gif" alt="notification">  |
-| <div align=center>أذكار الصباح ☀️</div> | <div align=center>أذكار المساء 🌙</div> |
-| <img src="https://user-images.githubusercontent.com/48678280/141684574-ad164c5a-ac22-4c27-8774-6847e10cde3b.jpg" alt="notification"> | <img src="https://user-images.githubusercontent.com/48678280/141684402-51d9a132-2dad-4648-ad4f-d6cf814a9c93.png" alt="notification"> |
+| <div align=center>أذكار الصباح ☀️</div> | <div align=center>شرح الذكر 📜</div> |
+| <img src="https://github.com/AbdelrahmanBayoumi/Azkar-App/assets/48678280/fcc8d769-2c83-4a5f-86ed-79fc2dd44b4f" alt="أذكار الصباح"> | <img src="https://github.com/AbdelrahmanBayoumi/Azkar-App/assets/48678280/d95eb813-6c78-42e6-8bb8-528a31d81e4e" alt="شرح الذكر"> |
 
 
 <br>
@@ -53,7 +53,7 @@
        
 <p align="center">
    <a href="https://github.com/AbdelrahmanBayoumi/Azkar-App/releases/latest">
-     <img src="https://img.shields.io/badge/Azkar-v1.2.7-green?style=flat"/> 
+       <img src="https://img.shields.io/github/v/release/AbdelrahmanBayoumi/Azkar-App?&label=Latest%20release"/> 
    </a>
   <a href="https://github.com/AbdelrahmanBayoumi/Azkar-App/issues">
     <img src="https://img.shields.io/github/issues/AbdelrahmanBayoumi/Azkar-App"/> 

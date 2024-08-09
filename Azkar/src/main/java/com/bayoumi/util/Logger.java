@@ -1,5 +1,6 @@
 package com.bayoumi.util;
 
+import com.bayoumi.models.preferences.Preferences;
 import io.sentry.Sentry;
 
 import java.io.FileWriter;
@@ -58,6 +59,9 @@ public class Logger {
                 if (Constants.RUNNING_MODE.equals(Constants.Mode.DEVELOPMENT)) {
                     throwable.printStackTrace();
                 } else {
+                    Sentry.setExtra("upTime", SentryUtil.getUptime());
+                    Preferences.getInstance().getAll().forEach(Sentry::setTag);
+
                     Sentry.captureException(throwable);
                 }
                 String DataAndTime = DATE_TIME_FORMAT.format(new Date());

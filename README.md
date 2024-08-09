@@ -16,8 +16,6 @@
 | <a href="/DEVELOPMENT_MANUAL.md"><img src="https://user-images.githubusercontent.com/48678280/174668532-78b5768c-25cb-4a5e-bf44-6fff1ebb02f8.png" alt="manual"></a>  | <a href="/TOOLS.md"><img src="https://user-images.githubusercontent.com/48678280/174610070-7edda8be-b3eb-4ff3-bfeb-5363f6b6e25f.png" alt="tools"></a> |
 
 
-
-       
        
 </div>
 <br>
@@ -26,9 +24,8 @@
 | Quick demo (YouTube) 📸 | Notification Animation 💬 |
 | ------------- | ------------- |
 | <a href="https://youtu.be/valBHDTIC1E"><img src="https://user-images.githubusercontent.com/48678280/141684196-899fb7f8-bf23-40b1-a98f-7570760056b0.png" alt="overview image"></a>  | <img src="https://user-images.githubusercontent.com/48678280/141681074-bde467a2-bc48-4e1c-8e51-861f224b2d34.gif" alt="notification">  |
-| <div align=center>Morning Azkar ☀️</div> | <div align=center>Night Azkar 🌙</div> |
-| <img src="https://user-images.githubusercontent.com/48678280/141684574-ad164c5a-ac22-4c27-8774-6847e10cde3b.jpg" alt="notification"> | <img src="https://user-images.githubusercontent.com/48678280/141684402-51d9a132-2dad-4648-ad4f-d6cf814a9c93.png" alt="notification"> |
-
+| <div align=center>Morning Azkar ☀️</div> | <div align=center>Dhikr Explanation 📜</div> |
+| <img src="https://github.com/AbdelrahmanBayoumi/Azkar-App/assets/48678280/4adf7f60-9c33-48c5-9482-3f70575996ec" alt="Morning Azkar"> | <img src="https://github.com/AbdelrahmanBayoumi/Azkar-App/assets/48678280/2246e2b5-01c4-450d-b11b-e994dab97990" alt="Dhikr Explanation"> |
 
 
 
@@ -57,10 +54,11 @@ Please ⭐️ this repo and share it with others
 [![Website](https://img.shields.io/website?color=black&down_color=black&label=%20&logo=google-earth&logoColor=white&up_color=black&up_message=Website&url=https://azkar-site.web.app/)](https://azkar-site.web.app/)
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red?style=flat) [![Java 8](https://img.shields.io/badge/Java-8-red.svg)](https://www.java.com)
 ![HITS](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FAbdelrahmanBayoumi%2FAzkar-App&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=PAGE+VIEWS&edge_flat=false)
-       
+
+
 <p align="center">
    <a href="https://github.com/AbdelrahmanBayoumi/Azkar-App/releases/latest">
-     <img src="https://img.shields.io/badge/Azkar-v1.2.7-green?style=flat"/> 
+     <img src="https://img.shields.io/github/v/release/AbdelrahmanBayoumi/Azkar-App?&label=Latest%20release"/> 
    </a>
   <a href="https://github.com/AbdelrahmanBayoumi/Azkar-App/issues">
     <img src="https://img.shields.io/github/issues/AbdelrahmanBayoumi/Azkar-App"/> 

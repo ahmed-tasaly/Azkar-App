@@ -1,16 +1,15 @@
 package com.bayoumi.models.settings;
 
-import com.bayoumi.util.Logger;
-import com.bayoumi.util.db.DatabaseManager;
+import com.bayoumi.models.preferences.Preferences;
+import com.bayoumi.models.preferences.PreferencesType;
 import com.bayoumi.util.file.FileUtils;
 
-import java.sql.ResultSet;
 import java.util.Observable;
 
 public class AzkarSettings extends Observable {
 
-    private String morningAzkarReminder;
-    private String nightAzkarReminder;
+    private int morningAzkarReminder;
+    private int nightAzkarReminder;
     private String audioName;
     private String selectedPeriod;
     private int highPeriod;
@@ -19,126 +18,70 @@ public class AzkarSettings extends Observable {
     private int rearPeriod;
     private boolean isStopped;
     private int volume;
+    private int timedAzkarFontSize;
 
 
     protected AzkarSettings() {
         loadSettings();
     }
 
-    public int getMorningAzkarOffset() {
-        return getOffset(morningAzkarReminder);
-    }
-
-    public int getNightAzkarOffset() {
-        return getOffset(nightAzkarReminder);
-    }
-
-    private int getOffset(String reminder) {
-        // TODO : about timed azkar reminder
-        int offset = 0;
-        if (reminder.equals("بـ نصف ساعة")) {
-            offset = 30;
-        } else if (reminder.equals("بـ ساعة")) {
-            offset = 60;
-        }
-        return offset;
-    }
 
     public void loadSettings() {
-        try {
-            ResultSet res = DatabaseManager.getInstance().con.prepareStatement("SELECT * FROM azkar_settings").executeQuery();
-            if (res.next()) {
-                this.morningAzkarReminder = res.getString(1);
-                this.nightAzkarReminder = res.getString(2);
-                this.audioName = res.getString(3);
-                this.highPeriod = res.getInt(4);
-                this.midPeriod = res.getInt(5);
-                this.lowPeriod = res.getInt(6);
-                this.rearPeriod = res.getInt(7);
-                this.isStopped = res.getInt(8) == 1;
-                this.selectedPeriod = res.getString(9);
-                this.volume = res.getInt(10);
-            }
-        } catch (Exception ex) {
-            Logger.error(null, ex, getClass().getName() + ".loadSettings()");
-        }
+        this.morningAzkarReminder = Preferences.getInstance().getInt(PreferencesType.MORNING_AZKAR_REMINDER);
+        this.nightAzkarReminder = Preferences.getInstance().getInt(PreferencesType.NIGHT_AZKAR_REMINDER);
+        this.audioName = Preferences.getInstance().get(PreferencesType.AUDIO_NAME);
+        this.highPeriod = Preferences.getInstance().getInt(PreferencesType.HIGH_PERIOD);
+        this.midPeriod = Preferences.getInstance().getInt(PreferencesType.MID_PERIOD);
+        this.lowPeriod = Preferences.getInstance().getInt(PreferencesType.LOW_PERIOD);
+        this.rearPeriod = Preferences.getInstance().getInt(PreferencesType.REAR_PERIOD);
+        this.isStopped = Preferences.getInstance().getBoolean(PreferencesType.IS_AZKAR_STOPPED);
+        this.selectedPeriod = Preferences.getInstance().get(PreferencesType.SELECTED_PERIOD);
+        this.volume = Preferences.getInstance().getInt(PreferencesType.VOLUME);
+        this.timedAzkarFontSize = Preferences.getInstance().getInt(PreferencesType.TIMED_AZKAR_FONT_SIZE);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof AzkarSettings) {
-            AzkarSettings azkarSettings = (AzkarSettings) obj;
-            return azkarSettings.getMorningAzkarReminder().equals(this.getMorningAzkarReminder()) &&
-                    azkarSettings.getNightAzkarReminder().equals(this.getNightAzkarReminder()) &&
-                    azkarSettings.getAudioName().equals(this.getAudioName()) &&
-                    azkarSettings.getHighPeriod() == this.getHighPeriod() &&
-                    azkarSettings.getMidPeriod() == this.getMidPeriod() &&
-                    azkarSettings.getLowPeriod() == this.getLowPeriod() &&
-                    azkarSettings.getRearPeriod() == this.getRearPeriod() &&
-                    azkarSettings.isStopped() == this.isStopped() &&
-                    azkarSettings.getSelectedPeriod().equals(this.getSelectedPeriod()) &&
-                    azkarSettings.getVolume() == this.getVolume();
-        }
-        return false;
+    public int getTimedAzkarFontSize() {
+        return timedAzkarFontSize;
     }
 
-    public void save() {
-        try {
-            if (this.equals(new AzkarSettings())) {
-                // if current obj is equal the one stored in DB then => do nothing (don't save)
-                return;
-            }
-
-            DatabaseManager databaseManager = DatabaseManager.getInstance();
-            databaseManager.stat = databaseManager.con.prepareStatement("UPDATE azkar_settings set morning_reminder = ?, night_reminder = ?, audio_name = ?, high_period = ? , mid_period = ?, low_period = ?, rear_period = ?, stop_azkar = ?, selected_period = ?, volume = ?");
-            databaseManager.stat.setString(1, this.getMorningAzkarReminder());
-            databaseManager.stat.setString(2, this.getNightAzkarReminder());
-            databaseManager.stat.setString(3, this.getAudioName());
-            databaseManager.stat.setInt(4, this.getHighPeriod());
-            databaseManager.stat.setInt(5, this.getMidPeriod());
-            databaseManager.stat.setInt(6, this.getLowPeriod());
-            databaseManager.stat.setInt(7, this.getRearPeriod());
-            databaseManager.stat.setInt(8, this.isStopped() ? 1 : 0);
-            databaseManager.stat.setString(9, this.getSelectedPeriod());
-            databaseManager.stat.setInt(10, this.getVolume());
-            databaseManager.stat.executeUpdate();
-            // fetch new updated data from database
-            loadSettings();
-            // fire change event to all listeners to update their values
-            setChanged();
-            notifyObservers();
-        } catch (Exception ex) {
-            Logger.error(null, ex, getClass().getName() + ".save()");
-        }
+    public void setTimedAzkarFontSize(int timedAzkarFontSize) {
+        setChanged();
+        // 1. set value to local variable
+        this.timedAzkarFontSize = timedAzkarFontSize;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.TIMED_AZKAR_FONT_SIZE, timedAzkarFontSize + "");
     }
 
-    /**
-     * saveSelectedPeriod to DB without using save() to save all fields
-     */
-    public void saveSelectedPeriod() {
-        try {
-            DatabaseManager.getInstance().con
-                    .prepareStatement("UPDATE azkar_settings set selected_period = '" + this.getSelectedPeriod() + "'").
-                    executeUpdate();
-        } catch (Exception ex) {
-            Logger.error(null, ex, getClass().getName() + ".saveSelectedPeriod()");
-        }
-    }
-
-    public String getMorningAzkarReminder() {
+    public int getMorningAzkarOffset() {
         return morningAzkarReminder;
     }
 
-    public void setMorningAzkarReminder(String morningAzkarReminder) {
-        this.morningAzkarReminder = morningAzkarReminder;
-    }
-
-    public String getNightAzkarReminder() {
+    public int getNightAzkarOffset() {
         return nightAzkarReminder;
     }
 
-    public void setNightAzkarReminder(String nightAzkarReminder) {
+    public int getMorningAzkarReminder() {
+        return morningAzkarReminder;
+    }
+
+    public void setMorningAzkarReminder(int morningAzkarReminder) {
+        setChanged();
+        // 1. set value to local variable
+        this.morningAzkarReminder = morningAzkarReminder;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.MORNING_AZKAR_REMINDER, morningAzkarReminder + "");
+    }
+
+    public int getNightAzkarReminder() {
+        return nightAzkarReminder;
+    }
+
+    public void setNightAzkarReminder(int nightAzkarReminder) {
+        setChanged();
+        // 1. set value to local variable
         this.nightAzkarReminder = nightAzkarReminder;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.NIGHT_AZKAR_REMINDER, nightAzkarReminder + "");
     }
 
     public String getAudioName() {
@@ -149,7 +92,11 @@ public class AzkarSettings extends Observable {
     }
 
     public void setAudioName(String audioName) {
+        setChanged();
+        // 1. set value to local variable
         this.audioName = audioName;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.AUDIO_NAME, audioName);
     }
 
     public int getHighPeriod() {
@@ -157,7 +104,11 @@ public class AzkarSettings extends Observable {
     }
 
     public void setHighPeriod(int highPeriod) {
+        setChanged();
+        // 1. set value to local variable
         this.highPeriod = highPeriod;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.HIGH_PERIOD, highPeriod + "");
     }
 
     public int getMidPeriod() {
@@ -165,7 +116,11 @@ public class AzkarSettings extends Observable {
     }
 
     public void setMidPeriod(int midPeriod) {
+        setChanged();
+        // 1. set value to local variable
         this.midPeriod = midPeriod;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.MID_PERIOD, midPeriod + "");
     }
 
     public int getLowPeriod() {
@@ -173,7 +128,11 @@ public class AzkarSettings extends Observable {
     }
 
     public void setLowPeriod(int lowPeriod) {
+        setChanged();
+        // 1. set value to local variable
         this.lowPeriod = lowPeriod;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.LOW_PERIOD, lowPeriod + "");
     }
 
     public int getRearPeriod() {
@@ -181,7 +140,11 @@ public class AzkarSettings extends Observable {
     }
 
     public void setRearPeriod(int rearPeriod) {
+        setChanged();
+        // 1. set value to local variable
         this.rearPeriod = rearPeriod;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.REAR_PERIOD, rearPeriod + "");
     }
 
     public boolean isStopped() {
@@ -189,7 +152,11 @@ public class AzkarSettings extends Observable {
     }
 
     public void setStopped(boolean stopped) {
+        setChanged();
+        // 1. set value to local variable
         isStopped = stopped;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.IS_AZKAR_STOPPED, stopped + "");
     }
 
     public String getSelectedPeriod() {
@@ -197,7 +164,11 @@ public class AzkarSettings extends Observable {
     }
 
     public void setSelectedPeriod(String selectedPeriod) {
+        setChanged();
+        // 1. set value to local variable
         this.selectedPeriod = selectedPeriod;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.SELECTED_PERIOD, selectedPeriod);
     }
 
     public int getVolume() {
@@ -205,7 +176,11 @@ public class AzkarSettings extends Observable {
     }
 
     public void setVolume(int volume) {
+        setChanged();
+        // 1. set value to local variable
         this.volume = volume;
+        // 2. save value to DB
+        Preferences.getInstance().set(PreferencesType.VOLUME, volume + "");
     }
 
     @Override
@@ -223,4 +198,5 @@ public class AzkarSettings extends Observable {
                 ", volume=" + volume +
                 '}';
     }
+
 }
